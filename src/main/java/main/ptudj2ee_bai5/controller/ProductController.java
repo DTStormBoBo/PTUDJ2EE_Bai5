@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
-@RequestMapping("/products")
 public class ProductController {
     @Autowired
     private ProductService productService;
@@ -19,20 +18,25 @@ public class ProductController {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping()
+    @GetMapping("/")
+    public String Root() {
+        return "redirect:/products";
+    }
+
+    @GetMapping("/products")
     public String Index(Model model) {
         model.addAttribute("listproduct", productService.getAllProducts());
         return "products/list";
     }
 
-    @GetMapping("/add")
+    @GetMapping("/products/add")
     public String Add(Model model) {
         model.addAttribute("product", new Product());
         model.addAttribute("categories", categoryService.getAllCategories());
         return "products/add";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/products/save")
     public String Save(@Valid Product newProduct, BindingResult result,
                          @RequestParam(value = "image", required = false) MultipartFile image, Model model) {
         if (result.hasErrors()) {
@@ -55,7 +59,7 @@ public class ProductController {
         return "redirect:/products";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/products/edit/{id}")
     public String Edit(@PathVariable int id, Model model) {
         Product find = productService.getProductById(id);
         if (find == null) {
@@ -66,13 +70,13 @@ public class ProductController {
         return "products/edit";
     }
 
-    @GetMapping("/edit")
+    @GetMapping("/products/edit")
     public String EditFallback() {
         // Fallback: if user access /products/edit without ID, redirect to products list
         return "redirect:/products";
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/products/edit")
     public String Edit(@Valid Product editProduct,
                        BindingResult result,
                        @RequestParam(value = "image", required = false) MultipartFile image,
@@ -128,7 +132,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/delete/{id}")
+    @GetMapping("/products/delete/{id}")
     public String Delete(@PathVariable int id) {
         productService.deleteProduct(id);
         return "redirect:/products";
